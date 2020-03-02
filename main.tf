@@ -17,6 +17,18 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "main" {
+  backend = "remote"
+
+  config = {
+    organization = "iglesias-michael"
+
+    workspaces = {
+      name = "vpc1-${terraform.workspace}"
+    }
+  }
+}
+
 ############################################
 ######### Variables/Data sources ###########
 ############################################
