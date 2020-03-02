@@ -4,7 +4,7 @@ output "vpc-name" {
 
 
 output "vpc-id" {
-  value = module.vpc.default_vpc_id
+  value = module.vpc.vpc_id
 }
 
 output "vpc-cidr" {

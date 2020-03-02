@@ -104,6 +104,8 @@ module "gocd-master-sg" {
       cidr_blocks = "209.58.147.42/32"
     },
   ]
+
+  egress_rules            = ["all-all"]
 }
 
 
