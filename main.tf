@@ -82,7 +82,7 @@ module "gocd-master-sg" {
   version = "3.4.0"
 
   name   = "gocd-master-sg-${local.environment}"
-  vpc_id = module.vpc.default_vpc_id
+  vpc_id = module.vpc.vpc_id
 
   ingress_with_cidr_blocks = [
     {
