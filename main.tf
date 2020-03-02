@@ -67,7 +67,7 @@ module "gocd-master" {
   key_name   = "MacbookAirKeyPair"
   monitoring = true
 
-  subnet_id              = random_shuffle.shuffled_public_subnets.result
+  subnet_id              = random_shuffle.shuffled_public_subnets.result[0]
   vpc_security_group_ids = [module.vpc.default_security_group_id]
 
   tags = {
