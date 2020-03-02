@@ -63,7 +63,7 @@ module "gocd-master" {
   ami            = data.aws_ami.ubuntu.id
   instance_count = 1
   instance_type  = "t2.${local.instance_size}"
-  user_data            = "${base64encode(file("${path.module}/files/startup.sh"))}"
+  user_data      = "${base64encode(file("${path.module}/files/startup.sh"))}"
 
   key_name   = "MacbookAirKeyPair"
   monitoring = true
@@ -80,8 +80,8 @@ module "gocd-master" {
 module "gocd-master-sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "3.4.0"
-  
-  name        = "gocd-master-sg-${local.environment}"
+
+  name   = "gocd-master-sg-${local.environment}"
   vpc_id = module.vpc.default_vpc_id
 
   ingress_with_cidr_blocks = [
@@ -90,18 +90,18 @@ module "gocd-master-sg" {
       to_port     = 8153
       protocol    = "tcp"
       description = "GOCD UI (HTTP)"
-      cidr_blocks = "209.58.147.42"
+      cidr_blocks = "209.58.147.42/32"
     },
     {
       from_port   = 8154
       to_port     = 8154
       protocol    = "tcp"
       description = "GOCD UI (HTTPS)"
-      cidr_blocks = "209.58.147.42"
+      cidr_blocks = "209.58.147.42/32"
     },
     {
       rule        = "ssh-tcp"
-      cidr_blocks = "209.58.147.42"
+      cidr_blocks = "209.58.147.42/32"
     },
   ]
 }
