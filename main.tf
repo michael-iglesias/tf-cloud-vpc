@@ -8,7 +8,7 @@ provider "aws" {
 
 terraform {
   backend "remote" {
-    hostname = "app.terraform.io"
+    hostname     = "app.terraform.io"
     organization = "iglesias-michael"
 
     workspaces {
@@ -57,12 +57,17 @@ module "vpc" {
   tags = {
     Terraform   = "true"
     Environment = local.environment
-    Foo = var.ATLAS_WORKSPACE_NAME
+    Foo         = var.ATLAS_WORKSPACE_NAME
   }
 }
 
 resource "random_shuffle" "shuffled_public_subnets" {
   input        = module.vpc.public_subnets
+  result_count = 1
+}
+
+resource "random_shuffle" "shuffled_private_subnets" {
+  input        = module.vpc.private_subnets
   result_count = 1
 }
 
@@ -117,7 +122,46 @@ module "gocd-master-sg" {
     },
   ]
 
-  egress_rules            = ["all-all"]
+  egress_rules = ["all-all"]
 }
 
+resource "aws_placement_group" "gocd-agents" {
+  name     = "gocd-agents-pg-${local.environment}"
+  strategy = "cluster"
+}
+
+resource "aws_launch_configuration" "gocd-agents-launch-config" {
+  name = "gocd-agents-launch-config-${local.environment}"
+
+  image_id      = data.aws_ami.ubuntu.id
+  instance_type = local.instance_size
+  user_data     = "${base64encode(file("${path.module}/files/agent-startup.sh"))}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_group" "gocd-agents-autoscaling-group" {
+  name                      = "gocd-agents-autoscaling-group-${local.environment}"
+  max_size                  = 5
+  min_size                  = 2
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  force_delete              = true
+  placement_group           = "${aws_placement_group.gocd-agents.id}"
+  launch_configuration      = "${aws_launch_configuration.gocd-agents-launch-config.name}"
+  vpc_zone_identifier       = [random_shuffle.shuffled_private_subnets.result[0], random_shuffle.shuffled_private_subnets.result[1]]
+
+  initial_lifecycle_hook {
+    name                 = "foobar"
+    default_result       = "CONTINUE"
+    heartbeat_timeout    = 2000
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+  }
+  timeouts {
+    delete = "15m"
+  }
+}
 
