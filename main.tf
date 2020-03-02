@@ -6,6 +6,17 @@ provider "aws" {
   region  = var.region
 }
 
+terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "iglesias-michael"
+
+    workspaces {
+      prefix = "vpc1-"
+    }
+  }
+}
+
 ############################################
 ######### Variables/Data sources ###########
 ############################################
