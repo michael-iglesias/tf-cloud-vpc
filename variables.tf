@@ -1,3 +1,5 @@
+variable "ATLAS_WORKSPACE_NAME" {}
+
 variable "region" {
   type    = string
   default = "us-east-1"

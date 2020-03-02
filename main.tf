@@ -17,24 +17,12 @@ terraform {
   }
 }
 
-data "terraform_remote_state" "main" {
-  backend = "remote"
-
-  config = {
-    organization = "iglesias-michael"
-
-    workspaces = {
-      name = "vpc1-${terraform.workspace}"
-    }
-  }
-}
-
 ############################################
 ######### Variables/Data sources ###########
 ############################################
 locals {
-  environment   = "${lookup(var.workspace_to_environment_map, terraform.workspace, "dev")}"
-  instance_size = "${local.environment == "dev" ? lookup(var.workspace_to_size_map, terraform.workspace, "small") : var.environment_to_size_map[local.environment]}"
+  environment   = "${lookup(var.workspace_to_environment_map, var.ATLAS_WORKSPACE_NAME, "dev")}"
+  instance_size = "${local.environment == "dev" ? lookup(var.workspace_to_size_map, var.ATLAS_WORKSPACE_NAME, "small") : var.environment_to_size_map[local.environment]}"
 }
 
 data "aws_ami" "ubuntu" {
@@ -69,7 +57,7 @@ module "vpc" {
   tags = {
     Terraform   = "true"
     Environment = local.environment
-    Foo = terraform.workspace
+    Foo = var.ATLAS_WORKSPACE_NAME
   }
 }
 
