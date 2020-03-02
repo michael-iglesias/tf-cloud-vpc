@@ -57,6 +57,7 @@ module "vpc" {
   tags = {
     Terraform   = "true"
     Environment = local.environment
+    Foo = terraform.workspace
   }
 }
 
